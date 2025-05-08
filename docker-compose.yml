@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  simulation:
+    image: mysteriouscrawler/test
+    container_name: simulation
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "3000"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    ports:
+      - "3001:3001"
+    depends_on:
+      simulation:
+        condition: service_healthy
+        restart: true
+    environment:
+      - PORT=3001
+      - SIMULATION_HOST=simulation
+      - SIMULATION_PORT=3000
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
