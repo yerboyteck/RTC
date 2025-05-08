@@ -14,7 +14,7 @@ export function createApp() {
   app.get("/health", (req, res) => {
     res.json({ status: "ok" });
   });
-  app.get("/client/state", eventController.getState);
+  app.get("/client/state", eventController.getState.bind(eventController));
 
   return { app, eventService };
 }
